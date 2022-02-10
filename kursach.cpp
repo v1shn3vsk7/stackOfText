@@ -15,8 +15,7 @@ public:
 	bool isEnd(sentence*); //прототип функции, которая проверяет находится ли указатель в конце
 	sentence* movePtr(sentence*); //прототип функции перемещения указателя на следующий элемент
 	void checkElementAfterPtr(sentence*); //прототип функции вывода элемента после указателя
-	void deleteAfterPtr(sentence*, sentence*); //прототип функции удаления элемента после указателя
-	sentence* takeElement(sentence*, sentence*); //прототип функции взятия элемента после указателя
+	void deleteAfterPtr(sentence*); //прототип функции удаления элемента после указателя
 	void changeValueAfterPtr(sentence*); //прототип функции изменения элемента после указателя
 	sentence* push_backAfterPtr(sentence*, sentence*); //прототип функции добавления элемента после указателя
 	sentence* addElementFromBufer(sentence*, word*); //прототип функции добавления элемента из буфера
@@ -126,7 +125,7 @@ void sentence::start(sentence* l) { //начало работы предложения
 	std::cout << "You have started working with sentence list\n";
 }
 bool sentence::isEmpty(sentence* l) { //проверка на пустоту предложения
-	return l == NULL ? true : false;
+	return l == NULL;
 }
 sentence* sentence::makeEmpty(sentence* root) { //функция удаления из памяти предложения
 	while (root != NULL) {
@@ -137,50 +136,23 @@ sentence* sentence::makeEmpty(sentence* root) { //функция удаления из памяти пре
 	return root;
 }
 bool sentence::isEnd(sentence* l) { //функция, которая проверяет находится ли рабочий указатель в конце
-	return l->next == NULL ? true : false;
+	return l->next == NULL;
 }
 sentence* sentence::movePtr(sentence* l) { //функция перемещения рабочего указателя на следующий элемент (предложение)
 	return l = l->next;
 }
 void sentence::checkElementAfterPtr(sentence* l) { //функция вывода элемента после рабочего указателя (предложение)
-	l = l->next;
-	word* var = l->w;
-	if (var == NULL) {
-		std::cout << "Error. Memory cannot be allocated\n";
-		exit(-1);
-	}
-	std::cout << "element after pointer >> " << var->s << std::endl;
+	std::cout << "element after pointer >> " << l->next->w->s << "\n";
 }
-void sentence::deleteAfterPtr(sentence* l, sentence* root) { //функция удаления элемента предложения после указателя
-	int pointerPos = getPointerPos(l, root);
+void sentence::deleteAfterPtr(sentence* l) { //функция удаления элемента предложения после указателя
 	sentence* tmp = new(std::nothrow) sentence;
 	if (tmp == NULL) {
-		std::cout << "Error. memory cannot be allocated\n";
+		std::cout << "Error. Memory cannot be allocated!\n";
 		exit(-1);
 	}
-	tmp = root;
-	for (int i = 0; i < pointerPos + 1; ++i) {
-		tmp = tmp->next;
-	}
-	l->next = tmp->next;
-}
-sentence* sentence::takeElement(sentence* l, sentence* bufer) { //функция взятия элемента предложения после рабочего указателя 
-	sentence* tmp = new(std::nothrow) sentence;
-	if (tmp == NULL) {
-		std::cout << "Error. memory cannot be allocated\n";
-		exit(-1);
-	}
-	tmp->w = bufer->w;
-	if (l->isEnd(l)) {
-		l->next = tmp;
-		tmp->next = NULL;
-		return l;
-	}
-	else {
-		tmp->next = l->next;
-		l->next = tmp;
-		return l;
-	}
+	tmp = l->next;
+	l->next = l->next->next;
+	delete tmp;
 }
 sentence* returnNewSentence(sentence* root) { //функция, которая возвращает предложение из другой выделенной памяти
 	sentence* newroot = new(std::nothrow) sentence;
@@ -207,15 +179,8 @@ sentence* returnNewSentence(sentence* root) { //функция, которая возвращает пред
 }
 void sentence::changeValueAfterPtr(sentence* l) { //изменение элемента предложения после рабочего указателя
 	if (l->next != NULL) {
-		l = l->next;
-		word* wrd = new(std::nothrow) word;
-		if (wrd == NULL) {
-			std::cout << "Error. memory cannot be allocated\n";
-			exit(-1);
-		}
-		std::cout << "enter the string: ";
-		std::cin >> wrd->s;
-		l->w = wrd;
+		std::cout << "Enter the new string: ";
+		std::cin >> l->next->w->s;
 	}
 	else std::cout << "You can`t change element out of range!\n";
 }
@@ -432,7 +397,7 @@ sentence* menuForSentence(sentence* snt) { //меню предложения
 			if (isCreated) { //проверка на начало работы с предложением
 				if (!l->isEmpty(l)) {
 					if (!l->isEnd(l))
-						l->deleteAfterPtr(l, root);
+						l->deleteAfterPtr(l);
 					else std::cout << "\033[33mpointer is at the end. Cant delete non existence element\033[0m\n";
 				}
 				else std::cout << "\033[33myou can`t delete in empty sentence list!\033[0m\n";
@@ -444,7 +409,7 @@ sentence* menuForSentence(sentence* snt) { //меню предложения
 			if (isCreated) { //проверка на начало работы с предложением
 				if (!l->isEmpty(l) && !l->isEnd(l)) { //проверка на пустоту предложения
 					bufer = l->retWord(l->movePtr(l));
-					l->deleteAfterPtr(l, root);
+					l->deleteAfterPtr(l);
 				}
 				else
 					std::cout << "\033[33mYou cant take non existing element\033[0m\n";
